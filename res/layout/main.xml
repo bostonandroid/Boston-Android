@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:background="#FFFDD825"
+  android:padding="10dip">
+  <TextView android:layout_width="fill_parent"
+    android:layout_height="wrap_content" android:text="@string/hello"
+    android:textColor="#FF222222" />
+    
+    <EditText android:id="@+id/rsvp_text" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="\@bostonandroid" />
+    <Button android:id="@+id/rsvp_button" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="RSVP via Twitter" />
+</LinearLayout>
