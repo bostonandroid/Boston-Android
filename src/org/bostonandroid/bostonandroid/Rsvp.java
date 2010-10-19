@@ -15,6 +15,7 @@ public class Rsvp extends Activity implements OnClickListener {
         
         Button rsvpButton = (Button)findViewById(R.id.rsvp_button);
         rsvpButton.setOnClickListener(this);
+       
     }
     
     public void onClick(View v) {
