@@ -15,12 +15,14 @@ public class Rsvp extends Activity implements OnClickListener {
     setContentView(R.layout.main);
 
     Button rsvpButton = (Button) findViewById(R.id.rsvp_button);
-    rsvpButton.setOnClickListener(this);
-
-    TwitterFactory tf = new twitter4j.TwitterFactory();
-    Twitter twitter = tf.getOAuthAuthorizedInstance("hETTbD1lnhQkq2MUiSBMA",
-        "DYVzSOTv9NfICR9SAUF0wFdY2PlaM5bkqz1jRN2Xdzg");
+    rsvpButton.setOnClickListener(this);    
+    
+    System.setProperty("twitter4j.oauth.consumerKey", "hETTbD1lnhQkq2MUiSBMA");
+    System.setProperty("twitter4j.oauth.consumerSecret", "DYVzSOTv9NfICR9SAUF0wFdY2PlaM5bkqz1jRN2Xdzg");
+    TwitterFactory tf = new TwitterFactory();
+    Twitter twitter = tf.getInstance("bostonandroid", "fancypants!!");
     try {
+      twitter = tf.getOAuthAuthorizedInstance(twitter.getOAuthAccessToken());
       if (twitter.test())
         toast("Connected to the Twitter.");
       else
