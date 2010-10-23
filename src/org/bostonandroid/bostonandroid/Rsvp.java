@@ -16,6 +16,6 @@ public class Rsvp extends Activity {
   }
   
   SharedPreferences twitterPreferences() {
-    return getSharedPreferences("twitter", MODE_WORLD_READABLE);
+    return getSharedPreferences("twitter", MODE_PRIVATE);
   }
 }
