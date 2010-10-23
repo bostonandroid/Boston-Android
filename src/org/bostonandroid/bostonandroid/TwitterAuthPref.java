@@ -1,6 +1,12 @@
 package org.bostonandroid.bostonandroid;
 
 import android.app.Activity;
+import android.os.Bundle;
 
-class TwitterAuthPref extends Activity {
+public class TwitterAuthPref extends Activity {
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.twitter_auth);
+  }
 }

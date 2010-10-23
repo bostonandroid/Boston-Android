@@ -11,26 +11,31 @@ import android.widget.Toast;
 
 class RsvpHandler implements OnClickListener {
   private Rsvp rsvp;
+
   public RsvpHandler(Rsvp r) {
     this.rsvp = r;
   }
   
   public void onClick(View v) {
-    ensureConnectedToTwitter();
-    EditText text = (EditText)this.rsvp.findViewById(R.id.rsvp_text);
-    rsvpViaTwitter(text.getText().toString());
+    if (isConnectedToTwitter()) {
+      EditText text = (EditText) this.rsvp.findViewById(R.id.rsvp_text);
+      rsvpViaTwitter(text.getText().toString());
+    } else {
+      startTwitterAuthPrefActivity();
+    }
   }
   
-  private void ensureConnectedToTwitter() {
+  private boolean isConnectedToTwitter() {
     if (isTwitterInfoEntered()) {
       try {
         twitter().test();
+        return true;
       } catch (TwitterException e) {
-        toast("Unable to connect to Twitter.");
-        startTwitterAuthPrefActivity();
+        toast("Unable to connect to Twitter: " + e.getMessage());
+        return false;
       }
     } else {
-      startTwitterAuthPrefActivity();
+      return false;
     }
   }
   
