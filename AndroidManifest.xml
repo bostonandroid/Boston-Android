@@ -13,4 +13,5 @@
   </application>
   <uses-sdk android:minSdkVersion="4" />
   <uses-permission android:name="android.permission.INTERNET" />
+  <receiver android:name=".AlarmReceiver" />
 </manifest> 
