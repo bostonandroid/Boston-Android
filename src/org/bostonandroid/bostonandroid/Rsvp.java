@@ -23,6 +23,8 @@ public class Rsvp extends Activity implements OnClickListener {
     setContentView(R.layout.main);
 
     //alarmManager().set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1, makePendingIntent(makeIntent()));
+    new AlarmScheduler().execute(getString(R.string.calendar_feed_url));
+
     sendBroadcast(new Intent(this, AlarmReceiver.class));
     Button rsvpButton = (Button)findViewById(R.id.rsvp_button);
     rsvpButton.setOnClickListener(this);
@@ -104,5 +106,4 @@ public class Rsvp extends Activity implements OnClickListener {
   private Intent makeIntent() {
     return new Intent(this, AlarmReceiver.class);
   }
-
 }
