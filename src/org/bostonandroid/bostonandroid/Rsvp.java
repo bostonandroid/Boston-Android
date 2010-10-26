@@ -4,9 +4,6 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,8 +19,7 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    //alarmManager().set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1, makePendingIntent(makeIntent()));
-    new AlarmScheduler().execute(getString(R.string.calendar_feed_url));
+    new AlarmScheduler().execute(getString(R.string.calendar_account));
 
     sendBroadcast(new Intent(this, AlarmReceiver.class));
     Button rsvpButton = (Button)findViewById(R.id.rsvp_button);
@@ -93,17 +89,5 @@ public class Rsvp extends Activity implements OnClickListener {
 
   SharedPreferences twitterPreferences() {
     return getSharedPreferences("twitter", MODE_PRIVATE);
-  }
-
-  private AlarmManager alarmManager() {
-    return (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-  }
-
-  private PendingIntent makePendingIntent(Intent i) {
-    return PendingIntent.getBroadcast(this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-  }
-
-  private Intent makeIntent() {
-    return new Intent(this, AlarmReceiver.class);
   }
 }

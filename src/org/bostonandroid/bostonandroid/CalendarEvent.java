@@ -1,25 +1,21 @@
 package org.bostonandroid.bostonandroid;
 
+import java.util.Calendar;
+
 import com.google.api.client.util.Key;
 
 public class CalendarEvent {
   @Key
-  public String title;
+  public String title = "";
+
   @Key("gd:when")
-  private When when;
+  private When when = new When();
 
-  public String startTime() {
-    return this.when.startTime;
+  public Calendar startTime() {
+    return this.when.startTime();
   }
 
-  public String endTime() {
-    return this.when.endTime;
-  }
-
-  public static class When {
-    @Key("@startTime")
-    private String startTime;
-    @Key("@endTime")
-    private String endTime;
+  public Calendar endTime() {
+    return this.when.endTime();
   }
 }

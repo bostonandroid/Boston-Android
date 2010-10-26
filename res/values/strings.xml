@@ -5,5 +5,5 @@
 <string name="twitter_username">Your Twitter username</string>
 <string name="twitter_password">Your Twitter password</string>
 <string name="twitter_auth_button">Connect to Twitter</string>
-<string name="calendar_feed_url">http://www.google.com/calendar/feeds/admins%40bostonandroid.org/public/full-noattendees</string>
+<string name="calendar_account">admins@bostonandroid.org</string>
 </resources>
