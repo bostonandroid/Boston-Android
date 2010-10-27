@@ -19,7 +19,7 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    new AlarmScheduler().execute(getString(R.string.calendar_account));
+    new AlarmScheduler(this).execute(getString(R.string.calendar_account));
 
     sendBroadcast(new Intent(this, AlarmReceiver.class));
     Button rsvpButton = (Button)findViewById(R.id.rsvp_button);

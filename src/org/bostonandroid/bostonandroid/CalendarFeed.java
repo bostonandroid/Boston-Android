@@ -7,16 +7,18 @@ import java.util.List;
 import com.google.api.client.util.Key;
 
 public class CalendarFeed {
-  @Key("entry") private List<CalendarEvent> events = new ArrayList<CalendarEvent>();
+  @Key("entry")
+  private List<CalendarEvent> events = new ArrayList<CalendarEvent>();
 
-  public CalendarEvent first() {
+  public CalendarEvent first() throws EmptyFeedException {
     if (eventIterator().hasNext())
       return eventIterator().next();
-    else
-      return new CalendarEvent();
+    else {
+      throw new EmptyFeedException();
+    }
   }
 
   private Iterator<CalendarEvent> eventIterator() {
-    return new ArrayList<CalendarEvent>(this.events).iterator();
+    return this.events.iterator();
   }
 }

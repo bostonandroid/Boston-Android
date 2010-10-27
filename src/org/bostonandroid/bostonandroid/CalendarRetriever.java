@@ -2,7 +2,8 @@ package org.bostonandroid.bostonandroid;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+
+import android.content.Context;
 
 import com.google.api.client.googleapis.GoogleHeaders;
 import com.google.api.client.googleapis.GoogleTransport;
@@ -13,6 +14,7 @@ import com.google.api.client.xml.XmlNamespaceDictionary;
 import com.google.api.client.xml.atom.AtomParser;
 
 public class CalendarRetriever {
+  private Context context;
   private HttpTransport transport;
 
   private static final XmlNamespaceDictionary DICTIONARY = new XmlNamespaceDictionary();
@@ -22,7 +24,8 @@ public class CalendarRetriever {
     DICTIONARY.addNamespace("gd", "http://schemas.google.com/g/2005");
   }
 
-  public CalendarRetriever() {
+  public CalendarRetriever(Context context) {
+    this.context = context;
     this.transport = GoogleTransport.create();
     GoogleHeaders headers = (GoogleHeaders)transport.defaultHeaders;
     headers.gdataVersion = "2";
@@ -31,15 +34,21 @@ public class CalendarRetriever {
     this.transport.addParser(parser);
   }
 
-  public Calendar retrieve(String account) {
-    HttpRequest request = transport.buildGetRequest();
+  public Calendar retrieve(String account) throws RetrievalException {
+    HttpRequest request = this.transport.buildGetRequest();
     request.url = calendarUrl(account);
     try {
       CalendarFeed feed = request.execute().parseAs(CalendarFeed.class);
       return feed.first().startTime();
     } catch (IOException e) {
-      return new GregorianCalendar(1970,1,1);
+      throw new RetrievalException(getString(R.string.parse_failed), e);
+    } catch (EmptyFeedException e) {
+      throw new RetrievalException(getString(R.string.no_events), e);
     }
+  }
+
+  private String getString(int resId) {
+    return this.context.getString(resId);
   }
 
   // FIXME: this does not belong here

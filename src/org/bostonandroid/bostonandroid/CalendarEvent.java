@@ -6,10 +6,14 @@ import com.google.api.client.util.Key;
 
 public class CalendarEvent {
   @Key
-  public String title = "";
+  private String title = "";
 
   @Key("gd:when")
   private When when = new When();
+
+  public String title() {
+    return this.title;
+  }
 
   public Calendar startTime() {
     return this.when.startTime();

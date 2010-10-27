@@ -6,4 +6,6 @@
 <string name="twitter_password">Your Twitter password</string>
 <string name="twitter_auth_button">Connect to Twitter</string>
 <string name="calendar_account">admins@bostonandroid.org</string>
+<string name="no_events">No events found!</string>
+<string name="parse_failed">Unable to parse feed.</string>
 </resources>
