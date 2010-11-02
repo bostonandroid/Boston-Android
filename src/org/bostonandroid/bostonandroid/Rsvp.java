@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Rsvp extends Activity implements OnClickListener {
@@ -89,5 +90,13 @@ public class Rsvp extends Activity implements OnClickListener {
 
   SharedPreferences twitterPreferences() {
     return getSharedPreferences("twitter", MODE_PRIVATE);
+  }
+
+  private TextView when() {
+    return (TextView)findViewById(R.id.when);
+  }
+
+  void setWhen(String when) {
+    when().setText(when);
   }
 }

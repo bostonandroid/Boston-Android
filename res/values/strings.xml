@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, Rsvp!</string>
+    <string name="when">Loading ...</string>
     <string name="app_name">Boston Android</string>
 <string name="twitter_username">Your Twitter username</string>
 <string name="twitter_password">Your Twitter password</string>
