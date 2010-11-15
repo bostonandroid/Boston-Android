@@ -3,10 +3,13 @@ package org.bostonandroid.bostonandroid;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.http.RequestToken;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,12 +31,20 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
   public void onClick(View v) {
-    if (isConnectedToTwitter())
-      rsvpViaTwitter(rsvpMessage());
-    else
-      startTwitterAuthPrefActivity();
+    Intent i = new Intent(Intent.ACTION_VIEW, );
+    startActivity(i);
   }
   
+  @Override
+  public void onResume() {
+    super.onResume();
+    Uri uri = getIntent().getData();
+    if (uri != null) {
+      String oauthToken = uri.getQueryParameter("oauth_token");
+      Log.e("rsvp", "oauthToken: " + oauthToken);
+    }
+  }
+
   private String rsvpMessage() {
     EditText text = (EditText)findViewById(R.id.rsvp_text);
     return text.getText().toString();
@@ -77,7 +88,15 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
   private Twitter twitter() {
-    return new TwitterFactory().getInstance(twitterUsername(), twitterPassword());
+    Twitter t = new TwitterFactory().getOAuthAuthorizedInstance("hETTbD1lnhQkq2MUiSBMA", "DYVzSOTv9NfICR9SAUF0wFdY2PlaM5bkqz1jRN2Xdzg");
+    try {
+      RequestToken rt = t.getOAuthRequestToken("bostonandroid://twitter");
+      t.getOAuthAccessToken(rt);
+      return t;
+    } catch (TwitterException e) {
+      Log.e("Rsvp", e.toString());
+      return null;
+    }
   }
   
   private String twitterUsername() {

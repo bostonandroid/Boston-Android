@@ -14,4 +14,10 @@
   <uses-sdk android:minSdkVersion="4" />
   <uses-permission android:name="android.permission.INTERNET" />
   <receiver android:name=".AlarmReceiver" />
-</manifest> 
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW"></action>
+    <category android:name="android.intent.category.DEFAULT"></category>
+    <category android:name="android.intent.category.BROWSABLE"></category>
+    <data android:scheme="bostonandroid" android:host="twitter"></data>
+  </intent-filter>
+</manifest>
