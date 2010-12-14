@@ -214,29 +214,29 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu)
-  {
-  	super.onCreateOptionsMenu(menu);
-  	MenuInflater inflater = getMenuInflater ();
-  	inflater.inflate (R.menu.main_menu, menu);	
-  	return true;
-  }
-  
-  @Override
-  public boolean onOptionsItemSelected (MenuItem item) 
-  {
-  	switch (item.getItemId())
-  	{
-	    	case R.id.menu_preferences:
-	    		Log.i(TAG, "Launching Preferences");	   
-	    		startActivity (new Intent (this, Preference.class));    
-	    		break;
-  	    			
-  		default:
-  			Toast.makeText(this, "ERROR - MENU OPTION NOT SELECTED", Toast.LENGTH_SHORT).show();
-  			return true;
-  	}
-  	return true;
-  }
+//  @Override
+//  public boolean onCreateOptionsMenu(Menu menu)
+//  {
+//  	super.onCreateOptionsMenu(menu);
+//  	MenuInflater inflater = getMenuInflater ();
+//  	inflater.inflate (R.menu.main_menu, menu);	
+//  	return true;
+//  }
+//  
+//  @Override
+//  public boolean onOptionsItemSelected (MenuItem item) 
+//  {
+//  	switch (item.getItemId())
+//  	{
+//	    	case R.id.menu_preferences:
+//	    		Log.i(TAG, "Launching Preferences");	   
+//	    		startActivity (new Intent (this, Preference.class));    
+//	    		break;
+//  	    			
+//  		default:
+//  			Toast.makeText(this, "ERROR - MENU OPTION NOT SELECTED", Toast.LENGTH_SHORT).show();
+//  			return true;
+//  	}
+//  	return true;
+//  }
 }
