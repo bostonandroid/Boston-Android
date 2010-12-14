@@ -69,7 +69,6 @@ public class Rsvp extends Activity implements OnClickListener {
 		{
 			Log.i (TAG, "doing authenticaiton");
 			Twitter tt = new TwitterFactory ().getInstance();
-			tt.setOAuthConsumer ("yQfelP2qk5v5UYZhLm5HQ", "q5vvqwUYWfJVVkcv7VAnSRenLRznkswSuSrl4N6Qt8");
 			Log.i(TAG, "OATH VERIFIER: " +oauthVerifier());
 		
 			AccessToken at = tt.getOAuthAccessToken(rToken, oauthVerifier());
@@ -81,7 +80,7 @@ public class Rsvp extends Activity implements OnClickListener {
 			String secret = at.getTokenSecret();
 
 			
-			Twitter t3 = new TwitterFactory ().getOAuthAuthorizedInstance("yQfelP2qk5v5UYZhLm5HQ", "q5vvqwUYWfJVVkcv7VAnSRenLRznkswSuSrl4N6Qt8", new AccessToken (token, secret));
+			Twitter t3 = new TwitterFactory ().getOAuthAuthorizedInstance(new AccessToken(token, secret));
 			t3.updateStatus("2DEV2: " +Calendar.getInstance().getTime());
 			Log.i(TAG,"DONE");
 		}
