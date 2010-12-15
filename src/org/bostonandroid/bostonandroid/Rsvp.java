@@ -104,7 +104,7 @@ public class Rsvp extends Activity implements OnClickListener {
   private void rsvpViaTwitter(String message) {
     try {
       toast("See you there!");
-    } catch(Exception e) {
+    } catch (Exception e) {
       toast("Failed to RSVP: " + e.getMessage());
     }
   }
