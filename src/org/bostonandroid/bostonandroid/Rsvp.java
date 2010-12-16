@@ -9,8 +9,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,14 +29,7 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    Bundle metaData;
-    try {
-      metaData = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA).metaData;
-    } catch (NameNotFoundException e) {
-      // FIXME: this is really lame, but there's not much we can do if the Package Manager can't find our package
-      throw new RuntimeException(e);
-    }
-    this.consumer = new CommonsHttpOAuthConsumer(metaData.getString("consumer_key"), metaData.getString("consumer_secret"));
+    this.consumer = new CommonsHttpOAuthConsumer(TwitterKey.KEY, TwitterKey.SECRET);
     Log.d(TAG, "OAuth consumer key set to "+this.consumer.getConsumerKey());
     Log.d(TAG, "OAuth consumer secret set to "+this.consumer.getConsumerSecret());
 
@@ -59,7 +50,6 @@ public class Rsvp extends Activity implements OnClickListener {
       editor.commit();
       Log.d(TAG, "Received accessToken: "+accessToken());
       Log.d(TAG, "Received tokenSecret: "+tokenSecret());
-      // FIXME: async?
       this.consumer.setTokenWithSecret(accessToken(), tokenSecret());
     }
   }

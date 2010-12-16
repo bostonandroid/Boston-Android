@@ -1,0 +1,6 @@
+package org.bostonandroid.bostonandroid;
+
+public class TwitterKey {
+  public static final String KEY = "";
+  public static final String SECRET= "";
+}
