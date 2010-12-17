@@ -1,10 +1,24 @@
 package org.bostonandroid.bostonandroid;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import oauth.signpost.exception.OAuthException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +27,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -30,8 +46,6 @@ public class Rsvp extends Activity implements OnClickListener {
     setContentView(R.layout.main);
 
     this.consumer = new CommonsHttpOAuthConsumer(TwitterKey.KEY, TwitterKey.SECRET);
-    Log.d(TAG, "OAuth consumer key set to "+this.consumer.getConsumerKey());
-    Log.d(TAG, "OAuth consumer secret set to "+this.consumer.getConsumerSecret());
 
     //new AlarmScheduler(this).execute(getString(R.string.calendar_account));
 
@@ -48,9 +62,8 @@ public class Rsvp extends Activity implements OnClickListener {
       editor.putString("access_token", data.getQueryParameter("oauth_token"));
       editor.putString("token_secret", data.getQueryParameter("oauth_verifier"));
       editor.commit();
-      Log.d(TAG, "Received accessToken: "+accessToken());
-      Log.d(TAG, "Received tokenSecret: "+tokenSecret());
       this.consumer.setTokenWithSecret(accessToken(), tokenSecret());
+      rsvpViaTwitter(rsvpMessage());
     }
   }
 
@@ -60,10 +73,36 @@ public class Rsvp extends Activity implements OnClickListener {
     case R.id.rsvp_button:
       Log.d(TAG, "RSVP button pressed");
       if (isTwitterAuthorized())
-        Log.d(TAG, "Already authorized");
+       rsvpViaTwitter(rsvpMessage());
       else
         authorizeTwitter();
       break;
+    }
+  }
+  
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.main_menu, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu) {
+    menu.findItem(R.id.logout).setEnabled(isTwitterAuthorized());
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+    case R.id.logout:
+      Log.d(TAG, "Logging out");
+      Editor editor = twitterPreferences().edit();
+      editor.clear();
+      editor.commit();
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
     }
   }
 
@@ -92,9 +131,25 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
   private void rsvpViaTwitter(String message) {
+    HttpPost request = new HttpPost("http://api.twitter.com/1/statuses/update.xml");
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("status", message));
     try {
-      toast("See you there!");
-    } catch (Exception e) {
+      UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params);
+      request.setEntity(entity);
+      request.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+      HttpClient client = new DefaultHttpClient();
+      this.consumer.sign(request);
+      HttpResponse response = client.execute(request);
+      if (response.getStatusLine().getStatusCode() == 200)
+        toast("See you there!");
+      else
+        toast("Failed to RSVP");
+    } catch (UnsupportedEncodingException e) {
+      toast("Failed to RSVP: " + e.getMessage());
+    } catch (IOException e) {
+      toast("Failed to RSVP: " + e.getMessage());
+    } catch (OAuthException e) {
       toast("Failed to RSVP: " + e.getMessage());
     }
   }
