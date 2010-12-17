@@ -54,6 +54,13 @@ public class Rsvp extends Activity implements OnClickListener {
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    if (isTwitterAuthorized())
+      setToken();
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
     Uri data = getIntent().getData();
@@ -62,7 +69,9 @@ public class Rsvp extends Activity implements OnClickListener {
       editor.putString("access_token", data.getQueryParameter("oauth_token"));
       editor.putString("token_secret", data.getQueryParameter("oauth_verifier"));
       editor.commit();
-      this.consumer.setTokenWithSecret(accessToken(), tokenSecret());
+      Log.d(TAG, accessToken());
+      Log.d(TAG, tokenSecret());
+      setToken();
       rsvpViaTwitter(rsvpMessage());
     }
   }
@@ -71,7 +80,6 @@ public class Rsvp extends Activity implements OnClickListener {
   public void onClick(View v) {
     switch (v.getId()) {
     case R.id.rsvp_button:
-      Log.d(TAG, "RSVP button pressed");
       if (isTwitterAuthorized())
        rsvpViaTwitter(rsvpMessage());
       else
@@ -96,7 +104,6 @@ public class Rsvp extends Activity implements OnClickListener {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
     case R.id.logout:
-      Log.d(TAG, "Logging out");
       Editor editor = twitterPreferences().edit();
       editor.clear();
       editor.commit();
@@ -104,6 +111,10 @@ public class Rsvp extends Activity implements OnClickListener {
     default:
       return super.onOptionsItemSelected(item);
     }
+  }
+
+  private void setToken() {
+    this.consumer.setTokenWithSecret(accessToken(), tokenSecret());
   }
 
   private void authorizeTwitter() {
@@ -132,25 +143,50 @@ public class Rsvp extends Activity implements OnClickListener {
   
   private void rsvpViaTwitter(String message) {
     HttpPost request = new HttpPost("http://api.twitter.com/1/statuses/update.xml");
+    request.setEntity(requestParams(message));
+    request.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+    // FIXME: async
+    if (signRequest(request))
+      makeRequest(request);
+    else
+      toast("Authentication failed");
+  }
+
+  private UrlEncodedFormEntity requestParams(String message) {
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("status", message));
     try {
-      UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params);
-      request.setEntity(entity);
-      request.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-      HttpClient client = new DefaultHttpClient();
-      this.consumer.sign(request);
-      HttpResponse response = client.execute(request);
-      if (response.getStatusLine().getStatusCode() == 200)
-        toast("See you there!");
-      else
-        toast("Failed to RSVP");
+      return new UrlEncodedFormEntity(params);
     } catch (UnsupportedEncodingException e) {
-      toast("Failed to RSVP: " + e.getMessage());
+      // FIXME: user entered a message that we coldn't encode
+      return null;
+    }
+  }
+
+  private void makeRequest(HttpPost request) {
+    HttpClient client = new DefaultHttpClient();
+    try {
+      processResponse(client.execute(request));
     } catch (IOException e) {
-      toast("Failed to RSVP: " + e.getMessage());
+      request.abort();
+      toast("POST failed");
+    }
+  }
+
+  private void processResponse(HttpResponse response) {
+    if (response.getStatusLine().getStatusCode() == 200)
+      toast("See you there!");
+    else
+      toast("Something else failed");
+  }
+
+  private boolean signRequest(HttpPost request) {
+    try {
+      this.consumer.sign(request);
+      return true;
     } catch (OAuthException e) {
-      toast("Failed to RSVP: " + e.getMessage());
+      request.abort();
+      return false;
     }
   }
 
