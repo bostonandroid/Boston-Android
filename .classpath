@@ -3,10 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="libs/twitter4j-core-2.1.7-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="libs/CWAC-WakefulIntentService.jar"/>
 	<classpathentry kind="lib" path="libs/google-api-client-1.2.0-alpha.jar"/>
-	<classpathentry kind="lib" path="libs/signpost-core-1.2.1.1.jar"/>
-	<classpathentry kind="lib" path="libs/signpost-commonshttp4-1.2.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/scribe-1.0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

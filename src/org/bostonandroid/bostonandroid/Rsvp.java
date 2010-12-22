@@ -1,23 +1,13 @@
 package org.bostonandroid.bostonandroid;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
-import oauth.signpost.exception.OAuthException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.builder.api.TwitterApi;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
+import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -37,7 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Rsvp extends Activity implements OnClickListener {
-  private OAuthConsumer consumer;
+  private OAuthService service;
+  private Token requestToken;
   private static final String TAG = "BostonAndroid";
 
   @Override
@@ -45,7 +36,7 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    this.consumer = new CommonsHttpOAuthConsumer(TwitterKey.KEY, TwitterKey.SECRET);
+    this.service = new ServiceBuilder().provider(TwitterApi.class).apiKey(TwitterKey.KEY).apiSecret(TwitterKey.SECRET).callback("boston-android:///").build();
 
     //new AlarmScheduler(this).execute(getString(R.string.calendar_account));
 
@@ -54,10 +45,8 @@ public class Rsvp extends Activity implements OnClickListener {
   }
 
   @Override
-  public void onStart() {
-    super.onStart();
-    if (isTwitterAuthorized())
-      setToken();
+  protected void onNewIntent(Intent intent) {
+    setIntent(intent);
   }
 
   @Override
@@ -65,13 +54,11 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onResume();
     Uri data = getIntent().getData();
     if (data != null) {
+      Token accessToken = this.service.getAccessToken(this.requestToken, new Verifier(data.getQueryParameter("oauth_verifier")));
       Editor editor = twitterPreferences().edit();
-      editor.putString("access_token", data.getQueryParameter("oauth_token"));
-      editor.putString("token_secret", data.getQueryParameter("oauth_verifier"));
+      editor.putString("access_token", accessToken.getToken());
+      editor.putString("token_secret", accessToken.getSecret());
       editor.commit();
-      Log.d(TAG, accessToken());
-      Log.d(TAG, tokenSecret());
-      setToken();
       rsvpViaTwitter(rsvpMessage());
     }
   }
@@ -113,28 +100,26 @@ public class Rsvp extends Activity implements OnClickListener {
     }
   }
 
-  private void setToken() {
-    this.consumer.setTokenWithSecret(accessToken(), tokenSecret());
-  }
-
   private void authorizeTwitter() {
-    new AsyncTask<Void, Void, Uri>() {
+    new AsyncTask<OAuthService, Void, Token>() {
       @Override
-      protected Uri doInBackground(Void... params) {
-        OAuthProvider provider = new CommonsHttpOAuthProvider("http://twitter.com/oauth/request_token", "http://twitter.com/oauth/access_token", "http://twitter.com/oauth/authorize");
-        try {
-          return Uri.parse(provider.retrieveRequestToken(Rsvp.this.consumer, "boston-android:///"));
-        } catch (OAuthException e) {
-          return null;
-        }
+      protected Token doInBackground(OAuthService... params) {
+        return params[0].getRequestToken();
       }
 
       @Override
-      protected void onPostExecute(Uri result) {
+      protected void onPostExecute(Token result) {
         if (result != null)
-          startActivity(new Intent(Intent.ACTION_VIEW, result));
+          doSomethingWithToken(result);
+        else
+          toast("Catastrophic failure");
       }
-    }.execute();
+    }.execute(this.service);
+  }
+  
+  private void doSomethingWithToken(Token result) {
+    this.requestToken = result;
+    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/oauth/authorize?oauth_token="+result.getToken())));
   }
   
   private String rsvpMessage() {
@@ -142,51 +127,15 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
   private void rsvpViaTwitter(String message) {
-    HttpPost request = new HttpPost("http://api.twitter.com/1/statuses/update.xml");
-    request.setEntity(requestParams(message));
-    request.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-    // FIXME: async
-    if (signRequest(request))
-      makeRequest(request);
-    else
-      toast("Authentication failed");
-  }
-
-  private UrlEncodedFormEntity requestParams(String message) {
-    List<NameValuePair> params = new ArrayList<NameValuePair>();
-    params.add(new BasicNameValuePair("status", message));
-    try {
-      return new UrlEncodedFormEntity(params);
-    } catch (UnsupportedEncodingException e) {
-      // FIXME: user entered a message that we coldn't encode
-      return null;
-    }
-  }
-
-  private void makeRequest(HttpPost request) {
-    HttpClient client = new DefaultHttpClient();
-    try {
-      processResponse(client.execute(request));
-    } catch (IOException e) {
-      request.abort();
-      toast("POST failed");
-    }
-  }
-
-  private void processResponse(HttpResponse response) {
-    if (response.getStatusLine().getStatusCode() == 200)
-      toast("See you there!");
-    else
-      toast("Something else failed");
-  }
-
-  private boolean signRequest(HttpPost request) {
-    try {
-      this.consumer.sign(request);
-      return true;
-    } catch (OAuthException e) {
-      request.abort();
-      return false;
+    OAuthRequest request = new OAuthRequest(Verb.POST, "http://api.twitter.com/1/statuses/update.xml");
+    request.addBodyParameter("status", message);
+    this.service.signRequest(new Token(accessToken(), tokenSecret()), request);
+    Response response = request.send();
+    if (response.getCode() == 200)
+      toast("Great success!");
+    else {
+      Log.d(TAG, response.getBody());
+      toast("Less catastrophic failure.");
     }
   }
 
@@ -201,7 +150,7 @@ public class Rsvp extends Activity implements OnClickListener {
   private String accessToken() {
     return twitterPreferences().getString("access_token", null);
   }
-  
+
   private String tokenSecret() {
     return twitterPreferences().getString("token_secret", null);
   }
