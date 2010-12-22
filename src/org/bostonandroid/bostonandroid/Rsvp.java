@@ -54,12 +54,7 @@ public class Rsvp extends Activity implements OnClickListener {
     super.onResume();
     Uri data = getIntent().getData();
     if (data != null) {
-      Token accessToken = this.service.getAccessToken(this.requestToken, new Verifier(data.getQueryParameter("oauth_verifier")));
-      Editor editor = twitterPreferences().edit();
-      editor.putString("access_token", accessToken.getToken());
-      editor.putString("token_secret", accessToken.getSecret());
-      editor.commit();
-      rsvpViaTwitter(rsvpMessage());
+      persistToken(new Verifier(data.getQueryParameter("oauth_verifier")));
     }
   }
 
@@ -91,9 +86,7 @@ public class Rsvp extends Activity implements OnClickListener {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
     case R.id.logout:
-      Editor editor = twitterPreferences().edit();
-      editor.clear();
-      editor.commit();
+      twitterPreferences().edit().clear().commit();
       return true;
     default:
       return super.onOptionsItemSelected(item);
@@ -101,10 +94,10 @@ public class Rsvp extends Activity implements OnClickListener {
   }
 
   private void authorizeTwitter() {
-    new AsyncTask<OAuthService, Void, Token>() {
+    new AsyncTask<Void, Void, Token>() {
       @Override
-      protected Token doInBackground(OAuthService... params) {
-        return params[0].getRequestToken();
+      protected Token doInBackground(Void... params) {
+        return Rsvp.this.service.getRequestToken();
       }
 
       @Override
@@ -114,7 +107,7 @@ public class Rsvp extends Activity implements OnClickListener {
         else
           toast("Catastrophic failure");
       }
-    }.execute(this.service);
+    }.execute();
   }
   
   private void doSomethingWithToken(Token result) {
@@ -127,16 +120,25 @@ public class Rsvp extends Activity implements OnClickListener {
   }
   
   private void rsvpViaTwitter(String message) {
-    OAuthRequest request = new OAuthRequest(Verb.POST, "http://api.twitter.com/1/statuses/update.xml");
-    request.addBodyParameter("status", message);
-    this.service.signRequest(new Token(accessToken(), tokenSecret()), request);
-    Response response = request.send();
-    if (response.getCode() == 200)
-      toast("Great success!");
-    else {
-      Log.d(TAG, response.getBody());
-      toast("Less catastrophic failure.");
-    }
+    new AsyncTask<String, Void, Response>() {
+      @Override
+      protected Response doInBackground(String... params) {
+        OAuthRequest request = new OAuthRequest(Verb.POST, "http://api.twitter.com/1/statuses/update.xml");
+        request.addBodyParameter("status", params[0]);
+        Rsvp.this.service.signRequest(new Token(accessToken(), tokenSecret()), request);
+        return request.send();
+      }
+
+      @Override
+      protected void onPostExecute(Response result) {
+        if (result.getCode() == 200)
+          toast("Great success!");
+        else {
+          Log.d(TAG, result.getBody());
+          toast("Less catastrophic failure.");
+        }
+      }
+    }.execute(message);
   }
 
   private void toast(String s) {
@@ -157,6 +159,27 @@ public class Rsvp extends Activity implements OnClickListener {
 
   private SharedPreferences twitterPreferences() {
     return getSharedPreferences("twitter", MODE_PRIVATE);
+  }
+
+  private void persistToken(Verifier verifier) {
+    new AsyncTask<Verifier, Void, Token>() {
+      @Override
+      protected Token doInBackground(Verifier... params) {
+        return Rsvp.this.service.getAccessToken(Rsvp.this.requestToken, params[0]);
+      }
+      @Override
+      protected void onPostExecute(Token result) {
+        persistToken(result);
+        rsvpViaTwitter(rsvpMessage());
+      }
+    }.execute(verifier);
+  }
+
+  private boolean persistToken(Token token) {
+    Editor editor = twitterPreferences().edit();
+    editor.putString("access_token", token.getToken());
+    editor.putString("token_secret", token.getSecret());
+    return editor.commit();
   }
 
   private TextView when() {
