@@ -3,4 +3,4 @@ gen
 .settings
 local.properties
 *.swp
-twitter4j.properties
+TwitterKey.java
