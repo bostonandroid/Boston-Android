@@ -26,7 +26,7 @@ public class TweetActivity extends Activity {
       saveAccessToken(token);
     }
     // if (new AccessTokenTracker(this).hasAccessToken())
-      // tweet here
+      // AsyncTask: twitter().update(new StoredTweet(this).retrieve());
   }
 
   private AccessToken getToAccessToken(Uri uri) {
