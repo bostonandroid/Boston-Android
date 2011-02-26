@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.preference.PreferenceManager;
+import android.app.Dialog;
+import android.app.AlertDialog;
 
 public class TweetActivity extends Activity {
   @Override
@@ -24,9 +26,9 @@ public class TweetActivity extends Activity {
     if (uri != null) {
       AccessToken token = getToAccessToken(uri);
       saveAccessToken(token);
-    }
-    // if (new AccessTokenTracker(this).hasAccessToken())
-      // AsyncTask: twitter().update(new StoredTweet(this).retrieve());
+      new TweetTask(this, token).execute(new StoredTweet(this).retrieve());
+    } else if (new AccessTokenTracker(this).hasAccessToken())
+      new TweetTask(this, accessToken()).execute(new StoredTweet(this).retrieve());
   }
 
   private AccessToken getToAccessToken(Uri uri) {
@@ -52,6 +54,25 @@ public class TweetActivity extends Activity {
         preferences().getString("requestToken", null),
         preferences().getString("requestSecret", null));
   }
+
+  private AccessToken accessToken() {
+    return new AccessToken(
+        preferences().getString("accessToken", null),
+        preferences().getString("accessSecret", null));
+  }
+
+  /*
+  protected Dialog onCreateDialog(int id, Bundle args) {
+    switch(id) {
+      case 1:
+        AlertDialog d = new AlertDialog(this);
+        d.setMessage("RSVPed!");
+        return d;
+      default:
+        return super.onCreateDialog(id);
+    }
+  }
+  */
 
   private Twitter twitter() {
     Twitter t = new TwitterFactory().getInstance();

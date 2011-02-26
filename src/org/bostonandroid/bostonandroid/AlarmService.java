@@ -28,7 +28,7 @@ public class AlarmService extends WakefulIntentService {
   private Notification buildNotification(int icon, String contentText, long alertId) {
     Notification notification = new Notification(icon, contentText, System.currentTimeMillis());
     notification.setLatestEventInfo(this, getPackageManager().getApplicationLabel(getApplicationInfo()), contentText,
-        PendingIntent.getActivity(this, 0, new Intent(this, Rsvp.class), 0));
+        PendingIntent.getActivity(this, 0, new Intent(this, RsvpActivity.class), 0));
     notification.flags |= Notification.FLAG_AUTO_CANCEL;
     return notification;
   }

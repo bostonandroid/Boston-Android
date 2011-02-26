@@ -19,6 +19,10 @@ class StoredTweet {
     prefEdit.commit();
   }
 
+  String retrieve() {
+    return tweetPreferences().getString("tweet", null);
+  }
+
   private SharedPreferences tweetPreferences() {
     return activity().getSharedPreferences("tweet", Context.MODE_PRIVATE);
   }
