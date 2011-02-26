@@ -25,7 +25,7 @@ public class TweetActivity extends Activity {
       AccessToken token = getToAccessToken(uri);
       saveAccessToken(token);
     }
-    // if accessToken?
+    // if (new AccessTokenTracker(this).hasAccessToken())
       // tweet here
   }
 

@@ -40,7 +40,7 @@ public class RsvpActivity extends Activity {
 
     sendBroadcast(new Intent(this, AlarmReceiver.class));
     Button rsvpButton = (Button)findViewById(R.id.rsvp_button);
-    if (hasAccessToken())
+    if (new AccessTokenTracker(this).hasAccessToken())
       rsvpButton.setOnClickListener(new RsvpListener());
     else
       rsvpButton.setOnClickListener(new AccessTokenListener());
@@ -111,10 +111,6 @@ public class RsvpActivity extends Activity {
       return rsvpText.getText().toString();
     else
       return null;
-  }
-
-  private boolean hasAccessToken() {
-    return preferences().getString("accessToken", null) != null;
   }
 
   private void saveRequestToken(RequestToken token) {
