@@ -6,10 +6,10 @@ import java.util.Calendar;
 import android.os.AsyncTask;
 
 class AlarmScheduler extends AsyncTask<String, Void, Calendar> {
-  private Rsvp activity;
+  private RsvpActivity activity;
   private Exception exception;
 
-  AlarmScheduler(Rsvp activity) {
+  AlarmScheduler(RsvpActivity activity) {
     this.activity = activity;
   }
 

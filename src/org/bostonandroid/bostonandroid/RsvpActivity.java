@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.preference.PreferenceManager;
 
-public class Rsvp extends Activity {
+public class RsvpActivity extends Activity {
 
   protected static final String TAG = "RSVP";
   protected RequestToken rToken;
@@ -51,7 +51,7 @@ public class Rsvp extends Activity {
 
   class RsvpListener implements OnClickListener {
     public void onClick(View v) {
-      Intent i = new Intent(Rsvp.this, TweetActivity.class);
+      Intent i = new Intent(RsvpActivity.this, TweetActivity.class);
       startActivity(i);
     }
   }
