@@ -21,14 +21,13 @@ public class TweetActivity extends Activity {
 
     Uri uri = getIntent().getData();
 
-    if (uri == null) {
-      startActivity(new Intent(TweetActivity.this, Rsvp.class));
-    } else {
+    if (uri != null) {
       AccessToken token = getToAccessToken(uri);
       saveAccessToken(token);
 
-      // tweet here
     }
+    // if accessToken?
+      // tweet here
   }
 
   private AccessToken getToAccessToken(Uri uri) {

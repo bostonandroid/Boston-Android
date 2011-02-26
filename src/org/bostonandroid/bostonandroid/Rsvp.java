@@ -39,7 +39,10 @@ public class Rsvp extends Activity {
 
     sendBroadcast(new Intent(this, AlarmReceiver.class));
     Button rsvpButton = (Button)findViewById(R.id.rsvp_button);
-    rsvpButton.setOnClickListener(new RsvpListener());
+    if (hasAccessToken())
+      rsvpButton.setOnClickListener(new RsvpListener());
+    else
+      rsvpButton.setOnClickListener(new AccessTokenListener());
   }
 
   void setWhen(String when) {
@@ -47,6 +50,13 @@ public class Rsvp extends Activity {
   }
 
   class RsvpListener implements OnClickListener {
+    public void onClick(View v) {
+      Intent i = new Intent(Rsvp.this, TweetActivity.class);
+      startActivity(i);
+    }
+  }
+
+  class AccessTokenListener implements OnClickListener {
     public void onClick(View v) {
       RequestToken token;
       try {
@@ -85,6 +95,10 @@ public class Rsvp extends Activity {
 
   }
   */
+
+  private boolean hasAccessToken() {
+    return preferences().getString("accessToken", null) != null;
+  }
 
   private void saveRequestToken(RequestToken token) {
     Editor prefEdit = preferences().edit();
