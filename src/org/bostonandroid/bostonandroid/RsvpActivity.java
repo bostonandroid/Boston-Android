@@ -8,6 +8,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.http.AccessToken;
 import twitter4j.http.RequestToken;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -51,6 +52,7 @@ public class RsvpActivity extends Activity {
 
   class RsvpListener implements OnClickListener {
     public void onClick(View v) {
+      keepTweet();
       Intent i = new Intent(RsvpActivity.this, TweetActivity.class);
       startActivity(i);
     }
@@ -58,6 +60,7 @@ public class RsvpActivity extends Activity {
 
   class AccessTokenListener implements OnClickListener {
     public void onClick(View v) {
+      keepTweet();
       RequestToken token;
       try {
         token = twitter().getOAuthRequestToken("boston-android:///");
@@ -96,6 +99,20 @@ public class RsvpActivity extends Activity {
   }
   */
 
+  private void keepTweet() {
+    Editor prefEdit = tweetPreferences().edit();
+    prefEdit.putString("tweet", tweetText());
+    prefEdit.commit();
+  }
+
+  private String tweetText() {
+    TextView rsvpText = (TextView)findViewById(R.id.rsvp_text);
+    if (rsvpText != null)
+      return rsvpText.getText().toString();
+    else
+      return null;
+  }
+
   private boolean hasAccessToken() {
     return preferences().getString("accessToken", null) != null;
   }
@@ -115,6 +132,10 @@ public class RsvpActivity extends Activity {
 
   private TextView when() {
     return (TextView)findViewById(R.id.when);
+  }
+
+  private SharedPreferences tweetPreferences() {
+    return getSharedPreferences("tweet", Context.MODE_PRIVATE);
   }
 
   private SharedPreferences preferences() {
