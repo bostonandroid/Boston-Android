@@ -8,7 +8,7 @@ import twitter4j.http.AccessToken;
 import android.os.AsyncTask;
 import android.util.Log;
 
-class TweetTask extends AsyncTask<String, Void, Void> {
+class TweetTask extends AsyncTask<String, Void, Boolean> {
   private Activity activity;
   private Activity activity() { return this.activity; }
   private AccessToken accessToken;
@@ -19,14 +19,25 @@ class TweetTask extends AsyncTask<String, Void, Void> {
     this.accessToken = at;
   }
 
-  protected Void doInBackground(String... tweet) {
+  @Override
+  protected Boolean doInBackground(String... tweet) {
     try {
       twitter().updateStatus(tweet[0]);
+      return Boolean.TRUE;
     } catch (TwitterException e) {
       Log.i("TweetTask", e.toString());
+      return Boolean.FALSE;
     }
-    return null;
   }
+
+  @Override
+  protected void onPostExecute(Boolean wasSuccess) {
+    if (wasSuccess.booleanValue())
+      this.activity.showDialog(1);
+    else
+      this.activity.showDialog(2);
+  }
+
 
   private Twitter twitter() {
     return new TwitterFactory().getOAuthAuthorizedInstance(

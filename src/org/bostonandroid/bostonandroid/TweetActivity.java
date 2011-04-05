@@ -26,9 +26,11 @@ public class TweetActivity extends Activity {
     if (uri != null) {
       AccessToken token = getToAccessToken(uri);
       saveAccessToken(token);
-      new TweetTask(this, token).execute(new StoredTweet(this).retrieve());
+      tweet(token);
     } else if (new AccessTokenTracker(this).hasAccessToken())
-      new TweetTask(this, accessToken()).execute(new StoredTweet(this).retrieve());
+      tweet(accessToken());
+
+    setContentView(R.layout.tweeted);
   }
 
   private AccessToken getToAccessToken(Uri uri) {
@@ -61,18 +63,23 @@ public class TweetActivity extends Activity {
         preferences().getString("accessSecret", null));
   }
 
-  /*
+  private void tweet(AccessToken token) {
+    new TweetTask(this, token).execute(new StoredTweet(this).retrieve());
+  }
+
   protected Dialog onCreateDialog(int id, Bundle args) {
+    AlertDialog d = new AlertDialog(this);
     switch(id) {
       case 1:
-        AlertDialog d = new AlertDialog(this);
         d.setMessage("RSVPed!");
+        return d;
+      case 2:
+        d.setMessage("RSVP failed. No idea why.");
         return d;
       default:
         return super.onCreateDialog(id);
     }
   }
-  */
 
   private Twitter twitter() {
     Twitter t = new TwitterFactory().getInstance();

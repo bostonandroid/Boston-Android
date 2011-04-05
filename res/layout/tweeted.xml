@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical" android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:background="#FFFDD825"
+  android:padding="10dip">
+
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<TextView android:id="@+id/when_label" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="When: "
+			android:textColor="#FF222222" />
+		<TextView android:id="@+id/when" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/when"
+			android:layout_toRightOf="@id/when_label" android:textColor="#FF222222" />
+	</RelativeLayout>
+</LinearLayout>
